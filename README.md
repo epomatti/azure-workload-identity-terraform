@@ -36,7 +36,11 @@ terraform -chdir='kubernetes' init
 terraform -chdir='kubernetes' apply -var-file='../variables.tfvars' -auto-approve
 ```
 
+## Clean up
 
+```sh
+terraform -chdir='azure' -auto-approve
+```
 
 
 group='<resource_group_name>'
