@@ -47,6 +47,8 @@ You should change the `app_name` variable. Edit the other variables according to
 
 ### 3 - Deploy the Resources
 
+Create the Azure Cloud resources:
+
 ```bash
 terraform -chdir='azure' init
 terraform -chdir='azure' apply -var-file=$tfvars -auto-approve
