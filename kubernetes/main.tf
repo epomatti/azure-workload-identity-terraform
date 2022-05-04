@@ -23,6 +23,8 @@ provider "azurerm" {
   }
 }
 
+### Local Variables
+
 locals {
   resource_group_name   = "rg-${var.app_name}"
   keyvault_name         = "kv-${var.app_name}"
@@ -31,9 +33,9 @@ locals {
   service_account_name  = "workload-identity-sa"
 }
 
-data "azurerm_client_config" "current" {}
+### Connect to Kubernetes with Interpoation
 
-### Secrets and ConfigMaps
+data "azurerm_client_config" "current" {}
 
 data "azurerm_key_vault" "main" {
   name                = local.keyvault_name
@@ -53,18 +55,8 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
 }
 
-resource "kubernetes_config_map" "default" {
-  metadata {
-    name = "solution-configmap"
-  }
-  data = {
-    USE_KEYVAULT = true
-    KEYVAULT_URL = data.azurerm_key_vault.main.vault_uri
-  }
-}
 
-
-### App Registration for Workload Identity ###
+### App Registration for the Workload Identity
 
 data "azuread_application" "default" {
   display_name = local.app_registration_name
@@ -82,6 +74,8 @@ resource "kubernetes_service_account" "default" {
     }
   }
 }
+
+### Deploy the Pod to Kubernetes
 
 resource "kubernetes_pod" "quick_start" {
   metadata {
@@ -105,16 +99,9 @@ resource "kubernetes_pod" "quick_start" {
         value = "my-secret"
       }
     }
-
-    # node_selector = 
-
-    # node_selector {
-    #   kubernetes.io/os = "linux"
-    # }
   }
 
   depends_on = [
     kubernetes_service_account.default
   ]
-
 }

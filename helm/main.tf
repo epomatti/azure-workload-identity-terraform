@@ -23,9 +23,14 @@ provider "azurerm" {
   }
 }
 
-data "azurerm_kubernetes_cluster" "default" {
-  name                = "aks-${var.app_name}"
+locals {
+  aks_name            = "aks-${var.app_name}"
   resource_group_name = "rg-${var.app_name}"
+}
+
+data "azurerm_kubernetes_cluster" "default" {
+  name                = local.aks_name
+  resource_group_name = local.resource_group_name
 }
 
 provider "helm" {
@@ -58,10 +63,3 @@ resource "helm_release" "awi_webhook" {
     value = data.azurerm_client_config.current.tenant_id
   }
 }
-
-# helm repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
-# helm repo update
-# helm install workload-identity-webhook azure-workload-identity/workload-identity-webhook \
-#    --namespace azure-workload-identity-system \
-#    --create-namespace \
-#    --set azureTenantID="${AZURE_TENANT_ID}"
