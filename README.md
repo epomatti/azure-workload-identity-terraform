@@ -15,8 +15,8 @@ The overall architecture of the solution and it's main components.
 This project is composed by the following Terraform modules:
 
 - Azure - Create the RG, AKS cluster w/oidc, KV, App Reg, Service Principal.
-- Helm - Install the Azure Workload Identity System charts.
-- Kubernetes - Create the Service Account and the deploy a quick-start workload.
+- Helm - Install the Azure Workload Identity System objects.
+- Kubernetes - Create the Service Account and deploy a quick-start workload.
 
 ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
 
