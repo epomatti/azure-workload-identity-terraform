@@ -18,7 +18,7 @@ This project is composed by the following Terraform modules:
 - Helm - Install the Azure Workload Identity System charts.
 - Kubernetes - Create the Service Account and the deploy a quick-start workload.
 
-ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers, I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
+ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
 
 ## Deployment Steps
 
@@ -66,9 +66,12 @@ terraform -chdir='kubernetes' init
 terraform -chdir='kubernetes' apply -var-file=$tfvars -auto-approve
 ```
 
-### 4 - Test the workload
+That's all. You can now test it with the `quick-start` container.
 
-That's it! You should now be able to get the
+
+## Test the workload
+
+Connect using `kubectl` and check the response:
 
 ```bash
 az aks get-credentials -g '<resource_group_name>' -n '<ask_cluster_name>'
@@ -76,7 +79,7 @@ az aks get-credentials -g '<resource_group_name>' -n '<ask_cluster_name>'
 kubectl logs quick-start
 ```
 
-If everything worked you should get a message `successfully got secret, secret=Hello!`.
+You should see `successfully got secret, secret=Hello!`.
 
 ---
 
