@@ -31,6 +31,9 @@ terraform -chdir='azure' apply -var-file='../variables.tfvars' -auto-approve
 
 terraform -chdir='helm' init
 terraform -chdir='helm' apply -var-file='../variables.tfvars' -auto-approve
+
+terraform -chdir='kubernetes' init
+terraform -chdir='kubernetes' apply -var-file='../variables.tfvars' -auto-approve
 ```
 
 

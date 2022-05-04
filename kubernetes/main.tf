@@ -18,9 +18,17 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  features {
+  }
+}
+
 locals {
-  main_root_name           = "${var.application_name}-${var.environment}-${var.main_instance}"
-  main_resource_group_name = "rg-${local.main_root_name}"
+  resource_group_name   = "rg-${var.app_name}"
+  keyvault_name         = "kv-${var.app_name}"
+  aks_name              = "aks-${var.app_name}"
+  app_registration_name = "aks-${var.app_name}-service-principal"
+  service_account_name  = "workload-identity-sa"
 }
 
 data "azurerm_client_config" "current" {}
@@ -28,13 +36,13 @@ data "azurerm_client_config" "current" {}
 ### Secrets and ConfigMaps
 
 data "azurerm_key_vault" "main" {
-  name                = "kv-${local.main_root_name}"
-  resource_group_name = local.main_resource_group_name
+  name                = local.keyvault_name
+  resource_group_name = local.resource_group_name
 }
 
 data "azurerm_kubernetes_cluster" "main" {
-  name                = "aks-${local.main_root_name}"
-  resource_group_name = local.main_resource_group_name
+  name                = local.aks_name
+  resource_group_name = local.resource_group_name
 }
 
 provider "kubernetes" {
@@ -59,12 +67,12 @@ resource "kubernetes_config_map" "default" {
 ### App Registration for Workload Identity ###
 
 data "azuread_application" "default" {
-  display_name = "aks-service-principal-${var.environment}"
+  display_name = local.app_registration_name
 }
 
 resource "kubernetes_service_account" "default" {
   metadata {
-    name      = "workload-identity-sa"
+    name      = local.service_account_name
     namespace = "default"
     annotations = {
       "azure.workload.identity/client-id" = data.azuread_application.default.application_id
@@ -73,4 +81,40 @@ resource "kubernetes_service_account" "default" {
       "azure.workload.identity/use" : "true"
     }
   }
+}
+
+resource "kubernetes_pod" "quick_start" {
+  metadata {
+    name      = "quick-start"
+    namespace = "default"
+  }
+
+  spec {
+    service_account_name = local.service_account_name
+    container {
+      image = "ghcr.io/azure/azure-workload-identity/msal-node"
+      name  = "oidc"
+
+      env {
+        name  = "KEYVAULT_NAME"
+        value = local.keyvault_name
+      }
+
+      env {
+        name  = "SECRET_NAME"
+        value = "my-secret"
+      }
+    }
+
+    # node_selector = 
+
+    # node_selector {
+    #   kubernetes.io/os = "linux"
+    # }
+  }
+
+  depends_on = [
+    kubernetes_service_account.default
+  ]
+
 }

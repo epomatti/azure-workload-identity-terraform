@@ -24,8 +24,8 @@ provider "azurerm" {
 }
 
 data "azurerm_kubernetes_cluster" "default" {
-  resource_group_name = "rg-${var.app_name}"
   name                = "aks-${var.app_name}"
+  resource_group_name = "rg-${var.app_name}"
 }
 
 provider "helm" {
