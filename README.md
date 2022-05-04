@@ -85,7 +85,7 @@ You should see `successfully got secret, secret=Hello!`.
 
 ### Clean Up
 
-Delete the resources to unwanted avoid costs:
+Delete the resources to avoid unwanted avoid costs:
 
 ```bash
 terraform -chdir='azure' destroy -var-file=$tfvars -auto-approve
