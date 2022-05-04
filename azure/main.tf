@@ -25,31 +25,23 @@ provider "azurerm" {
   }
 }
 
-resource "random_integer" "example" {
-  min = 10000
-  max = 99999
-  keepers = {
-    name = "example"
-  }
-}
-
 locals {
-  app_affix            = "${var.app}-${random_integer.example.result}"
+  app_name             = var.app_name
   aks_namespace        = "default"
   service_account_name = "workload-identity-sa"
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "rg-${local.app_affix}"
+  name     = "rg-${local.app_name}"
   location = var.location
 }
 
 resource "azurerm_kubernetes_cluster" "example" {
-  name                = "aks-${local.app_affix}"
+  name                = "aks-${local.app_name}"
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
-  dns_prefix          = "aks-${local.app_affix}"
-  node_resource_group = "rg-k8s-${local.app_affix}"
+  dns_prefix          = "aks-${local.app_name}"
+  node_resource_group = "rg-k8s-${local.app_name}"
 
   oidc_issuer_enabled = true
 
@@ -67,7 +59,7 @@ resource "azurerm_kubernetes_cluster" "example" {
 
 
 resource "azuread_application" "example" {
-  display_name = "aks-${local.app_affix}-service-principal"
+  display_name = "aks-${local.app_name}-service-principal"
 }
 
 resource "azuread_service_principal" "example" {
@@ -90,7 +82,7 @@ resource "azuread_application_federated_identity_credential" "example" {
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "example" {
-  name                       = "kv-${local.app_affix}"
+  name                       = "kv-${local.app_name}"
   resource_group_name        = azurerm_resource_group.example.name
   location                   = azurerm_resource_group.example.location
   tenant_id                  = data.azurerm_client_config.current.tenant_id

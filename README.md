@@ -1,13 +1,16 @@
 # Azure Workload Identity with Terraform
 
-https://docs.microsoft.com/en-us/azure/aks/cluster-configuration#register-the-enableoidcissuerpreview-feature-flag
+##
 
+## 
+
+Start by logging into Azure:
 
 ```bash
 az login
 ```
 
-First you need to enable OIDC Issuer as described in [this section](https://docs.microsoft.com/en-us/azure/aks/cluster-configuration#register-the-enableoidcissuerpreview-feature-flag) of the documentation:
+First you need to enable OIDC Issuer Preview, as described in [this section](https://docs.microsoft.com/en-us/azure/aks/cluster-configuration#register-the-enableoidcissuerpreview-feature-flag) of the documentation:
 
 ```bash
 # Enable the feature
@@ -24,10 +27,24 @@ az provider register --namespace 'Microsoft.ContainerService'
 
 ```bash
 terraform -chdir='azure' init
-terraform -chdir='azure' apply -auto-approve
+terraform -chdir='azure' apply -var-file='../variables.tfvars' -auto-approve
 
-terraform plan
-terraform apply
+terraform -chdir='helm' init
+terraform -chdir='helm' apply -var-file='../variables.tfvars' -auto-approve
 ```
+
+
+
+
+group='<resource_group_name>'
+aks='<ask_cluster_name>'
+
+az aks get-credentials -g $group -n $aks
+
+az aks get-credentials -g rg-azwiexmp-52139 -n aks-azwiexmp-52139
+
+
+
+
 
 https://azure.github.io/azure-workload-identity/docs/installation/mutating-admission-webhook.html

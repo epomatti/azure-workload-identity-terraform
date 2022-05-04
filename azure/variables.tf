@@ -1,7 +1,6 @@
-variable "app" {
+variable "app_name" {
   type        = string
-  description = "The root name of the application."
-  default     = "azwiexmp"
+  description = "The root name of the application, as an alphanumeric short value."
 }
 
 variable "location" {
