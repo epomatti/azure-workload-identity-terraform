@@ -2,13 +2,25 @@
 
 Terraform modules to setup an AKS Cluster integrated with Workload Identity, allowing your pods to connect to Azure resources using Managed Identity.
 
-This repository is a Terraform-flavored version of the AWI [Quick Start](https://azure.github.io/azure-workload-identity/docs/quick-start.html) documentation.
+This repository is a Terraform-flavored version of the AWI [quick start](https://azure.github.io/azure-workload-identity/docs/quick-start.html) documentation.
 
 ## Architecture
 
+The overall architecture of the solution and it's main components.
+
 <img src=".docs/solution.png" width=800>
 
-## Deployment
+## Project Structure
+
+This project is composed by the following Terraform modules:
+
+- Azure - Create the RG, AKS cluster w/oidc, KV, App Reg, Service Principal.
+- Helm - Install the Azure Workload Identity System charts.
+- Kubernetes - Create the Service Account and the deploy a quick-start workload.
+
+ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers, I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
+
+## Deployment Steps
 
 ### 1 - Enable OIDC Issuer Preview
 
@@ -18,33 +30,41 @@ Enable the feature (`az feature register`) and propagate it (`az provider regist
 
 Then return here and continue. You don't need to install or create anything else as everything will be configured and managed by the Terraform modules.
 
+### 2 - Prepare the local variables
 
-### 2 - Create the Azure resources
+Create the local variables file:
 
-This will create and configure the AKS Cluster, Key Vault, and App Registration.
+```sh
+# Copy from the template
+cp .config/example.tfvars .local.tfvars
+
+# Set is as relative to work from the modules root
+tfvars='../.local.tfvars'
+```
+
+You should change the `app_name` variable. Edit the other variables according to your preferences.
+
+
+### 3 - Deploy the Resources
 
 ```bash
 terraform -chdir='azure' init
-terraform -chdir='azure' apply -var-file='../variables.tfvars' -auto-approve
+terraform -chdir='azure' apply -var-file=$tfvars -auto-approve
 ```
 
-### 3 - Configure Kubernetes
-
-Apply the Helm module to create the Workload Identity namespace and it's components.
+Apply the Helm module:
 
 ```bash
 terraform -chdir='helm' init
-terraform -chdir='helm' apply -var-file='../variables.tfvars' -auto-approve
+terraform -chdir='helm' apply -var-file=$tfvars -auto-approve
 ```
 
-Now apply the Kubernetes module to create the application workload.
+Apply the Kubernetes module:
 
 ```bash
 terraform -chdir='kubernetes' init
-terraform -chdir='kubernetes' apply -var-file='../variables.tfvars' -auto-approve
+terraform -chdir='kubernetes' apply -var-file=$tfvars -auto-approve
 ```
-
-When using interpolated providers it is a good practice to use isolated `apply` modules.
 
 ### 4 - Test the workload
 
@@ -65,5 +85,5 @@ If everything worked you should get a message `successfully got secret, secret=H
 Delete the resources to unwanted avoid costs:
 
 ```bash
-terraform -chdir='azure' destroy -var-file='../variables.tfvars' -auto-approve
+terraform -chdir='azure' destroy -var-file=$tfvars -auto-approve
 ```
