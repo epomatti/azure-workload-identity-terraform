@@ -1,12 +1,12 @@
 # Azure Workload Identity w/ Terraform
 
-Terraform modules to setup an AKS Cluster integrated with Workload Identity, allowing your pods to connect to Azure resources using Managed Identity.
+Fully-automated Terraform modules to create an AKS Cluster with active OIDC that integrates with Workload Identity, allowing your pods to connect to Azure resources using Managed Identity, also called pod identity.
 
-This repository is a Terraform-flavored version of the AWI [quick start](https://azure.github.io/azure-workload-identity/docs/quick-start.html) documentation.
+ℹ️ This repository is a Terraform implementation of the AWI [quick start](https://azure.github.io/azure-workload-identity/docs/quick-start.html) guideline.
 
 ## Architecture
 
-The overall architecture of the solution and it's main components.
+The overall architecture of the solution and it's main components:
 
 <img src=".docs/solution.png" width=800>
 
@@ -14,9 +14,9 @@ The overall architecture of the solution and it's main components.
 
 This project is composed by the following Terraform modules:
 
-- Azure - Create the RG, AKS cluster w/oidc, KV, App Reg, Service Principal.
-- Helm - Install the Azure Workload Identity System objects.
-- Kubernetes - Create the Service Account and deploy a quick-start workload.
+- **Azure** - Create the RG, AKS cluster w/oidc, KV, App Reg, Service Principal.
+- **Helm** - Install the Azure Workload Identity System objects.
+- **Kubernetes** - Create the Service Account and deploy a quick-start workload.
 
 ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
 
