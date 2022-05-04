@@ -66,7 +66,7 @@ terraform -chdir='kubernetes' init
 terraform -chdir='kubernetes' apply -var-file=$tfvars -auto-approve
 ```
 
-That's all. You can now test it with the `quick-start` container.
+That's it, you can now test it with the `quick-start` container.
 
 
 ## Test the workload
