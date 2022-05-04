@@ -6,7 +6,7 @@ This repository is a Terraform-flavored version of the AWI [Quick Start](https:/
 
 ## Architecture
 
-
+<img src=".docs/solution.png" width=800>
 
 ## Deployment
 
@@ -21,7 +21,7 @@ Then return here and continue. You don't need to install or create anything else
 
 ### 2 - Create the Azure resources
 
-Creates the AKS Cluster, Key Vault, and App Registration/
+This will create and configure the AKS Cluster, Key Vault, and App Registration.
 
 ```bash
 terraform -chdir='azure' init
@@ -30,22 +30,33 @@ terraform -chdir='azure' apply -var-file='../variables.tfvars' -auto-approve
 
 ### 3 - Configure Kubernetes
 
-```sh
+Apply the Helm module to create the Workload Identity namespace and it's components.
+
+```bash
 terraform -chdir='helm' init
 terraform -chdir='helm' apply -var-file='../variables.tfvars' -auto-approve
+```
 
+Now apply the Kubernetes module to create the application workload.
+
+```bash
 terraform -chdir='kubernetes' init
 terraform -chdir='kubernetes' apply -var-file='../variables.tfvars' -auto-approve
 ```
 
-That's it! You should now be able to get the 
+When using interpolated providers it is a good practice to use isolated `apply` modules.
+
+### 4 - Test the workload
+
+That's it! You should now be able to get the
 
 ```bash
-$ az aks get-credentials -g '<resource_group_name>' -n '<ask_cluster_name>'
+az aks get-credentials -g '<resource_group_name>' -n '<ask_cluster_name>'
 
-$ kubectl logs quick-start
-successfully got secret, secret=Hello!
+kubectl logs quick-start
 ```
+
+If everything worked you should get a message `successfully got secret, secret=Hello!`.
 
 ---
 
@@ -53,6 +64,6 @@ successfully got secret, secret=Hello!
 
 Delete the resources to unwanted avoid costs:
 
-```sh
+```bash
 terraform -chdir='azure' destroy -var-file='../variables.tfvars' -auto-approve
 ```
