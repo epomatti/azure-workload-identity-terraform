@@ -65,7 +65,7 @@ data "azuread_application" "default" {
 resource "kubernetes_service_account" "default" {
   metadata {
     name      = local.service_account_name
-    namespace = "default"
+    namespace = var.aks_namespace
     annotations = {
       "azure.workload.identity/client-id" = data.azuread_application.default.application_id
     }
@@ -80,13 +80,13 @@ resource "kubernetes_service_account" "default" {
 resource "kubernetes_pod" "quick_start" {
   metadata {
     name      = "quick-start"
-    namespace = "default"
+    namespace = var.aks_namespace
   }
 
   spec {
     service_account_name = local.service_account_name
     container {
-      image = "ghcr.io/azure/azure-workload-identity/msal-node"
+      image = var.container_image
       name  = "oidc"
 
       env {
@@ -104,4 +104,14 @@ resource "kubernetes_pod" "quick_start" {
   depends_on = [
     kubernetes_service_account.default
   ]
+
+  lifecycle {
+    ignore_changes = [
+      spec[0].container[0].env["AZURE_CLIENT_ID"],
+      spec[0].container[0].env["AZURE_TENANT_ID"],
+      spec[0].container[0].env["AZURE_FEDERATED_TOKEN_FILE"],
+      spec[0].container[0].env["AZURE_AUTHORITY_HOST"],
+      spec[0].container[0].volume_mount
+    ]
+  }
 }
