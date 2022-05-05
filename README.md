@@ -81,7 +81,7 @@ az aks get-credentials -g $resourceGroupName -n $aksName
 kubectl logs quick-start
 ```
 
-You should see `successfully got secret, secret=Hello!`.
+You should see `successfully got secret, secret=Hello!`
 
 ---
 
