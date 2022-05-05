@@ -99,6 +99,9 @@ resource "kubernetes_pod" "quick_start" {
         value = "my-secret"
       }
     }
+    node_selector = {
+      "kubernetes.io/os" : "linux"
+    }
   }
 
   depends_on = [
