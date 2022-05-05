@@ -76,7 +76,7 @@ That's it, you can now test it with the `quick-start` container.
 Connect using `kubectl` and check the response:
 
 ```bash
-az aks get-credentials -g '<resource_group_name>' -n '<ask_cluster_name>'
+az aks get-credentials -g $resourceGroupName -n $aksName
 
 kubectl logs quick-start
 ```
