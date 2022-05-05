@@ -36,7 +36,7 @@ Create the local variables file:
 
 ```sh
 # Copy from the template
-cp .config/example.tfvars .local.tfvars
+cp .config/example.local.tfvars .local.tfvars
 
 # Set is as relative to work from the modules root
 tfvars='../.local.tfvars'
