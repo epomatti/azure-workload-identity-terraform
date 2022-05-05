@@ -20,7 +20,7 @@ This project is composed by the following Terraform modules:
 
 ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
 
-## 🚀 Deployment Steps
+## Deployment Steps
 
 ### 1 - Enable OIDC Issuer Preview
 
