@@ -29,25 +29,28 @@ provider "azurerm" {
 
 locals {
   app_name             = var.app_name
-  aks_namespace        = "default"
+  aks_namespace        = var.aks_default_namespace
   service_account_name = "workload-identity-sa"
+  aks_node_count       = var.aks_node_count
+  tags                 = var.tags
 }
 
 
 ### Resource Group
 
-resource "azurerm_resource_group" "example" {
+resource "azurerm_resource_group" "default" {
   name     = "rg-${local.app_name}"
   location = var.location
+  tags     = local.tags
 }
 
 
 ### Kubernetes Cluster
 
-resource "azurerm_kubernetes_cluster" "example" {
+resource "azurerm_kubernetes_cluster" "default" {
   name                = "aks-${local.app_name}"
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.default.name
+  location            = azurerm_resource_group.default.location
   dns_prefix          = "aks-${local.app_name}"
   node_resource_group = "rg-k8s-${local.app_name}"
 
@@ -55,33 +58,35 @@ resource "azurerm_kubernetes_cluster" "example" {
 
   default_node_pool {
     name       = local.aks_namespace
-    node_count = 1
+    node_count = local.aks_node_count
     vm_size    = var.aks_vm_size
   }
 
   identity {
     type = "SystemAssigned"
   }
+
+  tags = local.tags
 }
 
 
 ### Azure Active Directory
 
-resource "azuread_application" "example" {
+resource "azuread_application" "default" {
   display_name = "aks-${local.app_name}-service-principal"
 }
 
-resource "azuread_service_principal" "example" {
-  application_id               = azuread_application.example.application_id
+resource "azuread_service_principal" "default" {
+  application_id               = azuread_application.default.application_id
   app_role_assignment_required = false
 }
 
-resource "azuread_application_federated_identity_credential" "example" {
-  application_object_id = azuread_application.example.object_id
+resource "azuread_application_federated_identity_credential" "default" {
+  application_object_id = azuread_application.default.object_id
   display_name          = "kubernetes-federated-credential"
   description           = "Kubernetes service account federated credential"
   audiences             = ["api://AzureADTokenExchange"]
-  issuer                = azurerm_kubernetes_cluster.example.oidc_issuer_url
+  issuer                = azurerm_kubernetes_cluster.default.oidc_issuer_url
   subject               = "system:serviceaccount:${local.aks_namespace}:${local.service_account_name}"
 }
 
@@ -90,57 +95,65 @@ resource "azuread_application_federated_identity_credential" "example" {
 
 data "azurerm_client_config" "current" {}
 
-resource "azurerm_key_vault" "example" {
+resource "azurerm_key_vault" "default" {
   name                       = "kv-${local.app_name}"
-  resource_group_name        = azurerm_resource_group.example.name
-  location                   = azurerm_resource_group.example.location
+  resource_group_name        = azurerm_resource_group.default.name
+  location                   = azurerm_resource_group.default.location
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   soft_delete_retention_days = 7
   purge_protection_enabled   = false
 
   sku_name = "standard"
 
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    secret_permissions = [
-      "Backup",
-      "Delete",
-      "Get",
-      "List",
-      "Purge",
-      "Recover",
-      "Restore",
-      "Set"
-    ]
-  }
+  tags = local.tags
 }
 
-resource "azurerm_key_vault_access_policy" "example" {
-  key_vault_id = azurerm_key_vault.example.id
+resource "azurerm_key_vault_access_policy" "superadmin" {
+  key_vault_id = azurerm_key_vault.default.id
 
   tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azuread_service_principal.example.object_id
+  object_id = data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+    "Backup",
+    "Delete",
+    "Get",
+    "List",
+    "Purge",
+    "Recover",
+    "Restore",
+    "Set"
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "aks" {
+  key_vault_id = azurerm_key_vault.default.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azuread_service_principal.default.object_id
 
   secret_permissions = [
     "Get"
   ]
 }
 
-resource "azurerm_key_vault_secret" "example" {
+resource "azurerm_key_vault_secret" "default" {
   name         = "my-secret"
   value        = "Hello!"
-  key_vault_id = azurerm_key_vault.example.id
+  key_vault_id = azurerm_key_vault.default.id
+
+  depends_on = [
+    azurerm_key_vault_access_policy.superadmin
+  ]
 }
 
 
 ### Outputs
 
 output "resource_group_name" {
-  value = azurerm_resource_group.example.name
+  value = azurerm_resource_group.default.name
 }
 
 output "aks_name" {
-  value = azurerm_kubernetes_cluster.example.name
+  value = azurerm_kubernetes_cluster.default.name
 }

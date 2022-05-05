@@ -8,7 +8,7 @@ Fully-automated Terraform modules to create an AKS Cluster with active OIDC that
 
 The overall architecture of the solution and it's main components:
 
-<img src=".docs/solution.png" width=800>
+<img src=".docs/solution.drawio.svg" width=800>
 
 ## Project Structure
 
@@ -20,7 +20,7 @@ This project is composed by the following Terraform modules:
 
 ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
 
-## Deployment Steps
+## 🚀 Deployment Steps
 
 ### 1 - Enable OIDC Issuer Preview
 
@@ -71,7 +71,7 @@ terraform -chdir='kubernetes' apply -var-file=$tfvars -auto-approve
 That's it, you can now test it with the `quick-start` container.
 
 
-## Test the workload
+### 4 - Test the workload
 
 Connect using `kubectl` and check the response:
 
@@ -87,7 +87,7 @@ You should see `successfully got secret, secret=Hello!`.
 
 ### Clean Up
 
-Delete the resources to avoid unwanted avoid costs:
+Delete the resources to avoid unwanted costs:
 
 ```bash
 terraform -chdir='azure' destroy -var-file=$tfvars -auto-approve
