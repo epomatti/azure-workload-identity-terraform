@@ -15,7 +15,7 @@ variable "aks_vm_size" {
   default     = "Standard_B2s"
 }
 
-variable "aks_default_namespace" {
+variable "aks_namespace" {
   description = "The default namespace to be set on AKS."
   type        = string
   default     = "default"

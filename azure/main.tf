@@ -29,7 +29,7 @@ provider "azurerm" {
 
 locals {
   app_name             = var.app_name
-  aks_namespace        = var.aks_default_namespace
+  aks_namespace        = var.aks_namespace
   service_account_name = "workload-identity-sa"
   aks_node_count       = var.aks_node_count
   tags                 = var.tags

@@ -1,4 +1,14 @@
-# Alpha-numeric name to be affixed to resource names.
-# Change this avoid clashing with existing ones, but keep it short.
+### Shared Variables ###
+app_name = "awi-quikstrt9999"
+# aks_namespace  = "default"
 
-app_name = "azawi999"
+
+### Azure Module Variables ###
+# location       = "westus"
+# aks_vm_size    = "Standard_B2s"
+# aks_node_count = 1
+# tags           = { Application = "Azure Worload Identity" }
+
+
+### Kubernetes Module Variables ###
+# container_image = "ghcr.io/azure/azure-workload-identity/msal-python"

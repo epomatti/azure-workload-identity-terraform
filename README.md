@@ -1,12 +1,12 @@
 # Azure Workload Identity w/ Terraform
 
-Fully-automated Terraform modules to create an AKS Cluster with active OIDC that integrates with Workload Identity, allowing your pods to connect to Azure resources using Managed Identity, also called pod identity.
+Terraform modules to create an AKS Cluster with active OIDC that integrates with Workload Identity, allowing your pods to connect to Azure resources using Azure AD Application.
 
-ℹ️ This repository is a Terraform implementation of the AWI [quick start](https://azure.github.io/azure-workload-identity/docs/quick-start.html) guideline.
+This example is a Terraform implementation of the Workload Identity [Quick Start](https://azure.github.io/azure-workload-identity/docs/quick-start.html) guideline.
 
 ## Architecture
 
-The overall architecture of the solution and it's main components:
+The overall architecture of the solution and it's main components that are managed by Terraform.
 
 <img src=".docs/solution.drawio.svg" width=800>
 
@@ -18,34 +18,34 @@ This project is composed by the following Terraform modules:
 - **Helm** - Install the Azure Workload Identity System objects.
 - **Kubernetes** - Create the Service Account and deploy a quick-start workload.
 
-ℹ️ Since there are interpolation dependencies for Helm and Kubernetes providers I've created separated modules that allow for isolated `apply` commands, as per Terraform best practices.
+> Modules are isolated for individual `apply` commands, following [this warning](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources) from the Kubernetes provider.
 
 ## Deployment Steps
 
-### 1 - Enable OIDC Issuer Preview
+You can deploy this example solution following these steps:
 
-Head over to this Microsoft Docs section: **[Register the `EnableOIDCIssuerPreview` feature flag](https://docs.microsoft.com/en-us/azure/aks/cluster-configuration#register-the-enableoidcissuerpreview-feature-flag)**
+### 1. Pre-Requisites
 
-Enable the feature (`az feature register`) and propagate it (`az provider register`).
+Check the installation docs in [Managed Azure Kubernetes Service (AKS)](https://azure.github.io/azure-workload-identity/docs/installation/managed-clusters.html#azure-kubernetes-service-aks) and make sure the required feature flags are enabled.
 
-Then return here and continue. You don't need to install or create anything else as everything will be configured and managed by the Terraform modules.
 
-### 2 - Prepare the local variables
+### 2. Project Setup
 
-Create the local variables file:
+Create the local variables from the example file:
 
-```sh
+```bash
 # Copy from the template
 cp .config/example.local.tfvars .local.tfvars
 
 # Set is as relative to work from the modules root
-tfvars='../.local.tfvars'
+tfvars='.local.tfvars'
 ```
 
-You should change the `app_name` variable. Edit the other variables according to your preferences.
+You might want to change the `app_name` value to avoid conflict with existing resources. Just make sure that `kv-${app_name}` won't exceed 24 characters, as this is the Key Vault limit.
 
+All other variables are optional and have default values, but you may edit to fit your needs.
 
-### 3 - Deploy the Resources
+### 3. Deploy the Resources
 
 Create the Azure Cloud resources:
 
@@ -67,21 +67,22 @@ Apply the Kubernetes module:
 terraform -chdir='kubernetes' init
 terraform -chdir='kubernetes' apply -var-file=$tfvars -auto-approve
 ```
+On your own solutions you might choose to use `yaml` files, but here we are making it everything managed by TF for convenience.
 
-That's it, you can now test it with the `quick-start` container.
+That's it, you can now copy the output `aks_get_credentials_command` variable to test Workload Identity with the `quick-start` container.
 
 
-### 4 - Test the workload
+### 4. Test with Workload
 
 Connect using `kubectl` and check the response:
 
 ```bash
-az aks get-credentials -g $resourceGroupName -n $aksName
+az aks get-credentials -g '<resource-group-name>' -n '<aks-name>'
 
 kubectl logs quick-start
 ```
 
-You should see `successfully got secret, secret=Hello!`
+You should see the output: `successfully got secret, secret=Hello!`
 
 ---
 
@@ -92,3 +93,5 @@ Delete the resources to avoid unwanted costs:
 ```bash
 terraform -chdir='azure' destroy -var-file=$tfvars -auto-approve
 ```
+
+[1]: .docs/terraform-aks.drawio.svg
