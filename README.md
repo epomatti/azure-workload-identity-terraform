@@ -8,7 +8,7 @@ This example is a Terraform implementation of the Workload Identity [Quick Start
 
 The overall architecture of the solution and it's main components that are managed by Terraform.
 
-<img src=".docs/solution.drawio.svg" width=800>
+![Solution](.docs/solution.png)
 
 ## Project Structure
 
