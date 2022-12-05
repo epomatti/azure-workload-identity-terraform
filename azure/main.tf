@@ -2,11 +2,11 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.5.0"
+      version = "3.34.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.22.0"
+      version = "2.31.0"
     }
   }
   backend "local" {
@@ -145,15 +145,4 @@ resource "azurerm_key_vault_secret" "default" {
   depends_on = [
     azurerm_key_vault_access_policy.superadmin
   ]
-}
-
-
-### Outputs
-
-output "resource_group_name" {
-  value = azurerm_resource_group.default.name
-}
-
-output "aks_name" {
-  value = azurerm_kubernetes_cluster.default.name
 }
