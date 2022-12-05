@@ -2,15 +2,15 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.4.0"
+      version = "3.34.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.11.0"
+      version = "2.16.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.22.0"
+      version = "2.31.0"
     }
   }
   backend "local" {
@@ -90,8 +90,8 @@ resource "kubernetes_pod" "quick_start" {
       name  = "oidc"
 
       env {
-        name  = "KEYVAULT_NAME"
-        value = local.keyvault_name
+        name  = "KEYVAULT_URL"
+        value = data.azurerm_key_vault.main.vault_uri
       }
 
       env {

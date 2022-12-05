@@ -24,12 +24,12 @@ This project is composed by the following Terraform modules:
 
 You can deploy this example solution following these steps:
 
-### 1. Pre-Requisites
+### 1 - Pre-Requisites
 
 Check the installation docs in [Managed Azure Kubernetes Service (AKS)](https://azure.github.io/azure-workload-identity/docs/installation/managed-clusters.html#azure-kubernetes-service-aks) and make sure the required feature flags are enabled.
 
 
-### 2. Project Setup
+### 2 - Project Setup
 
 Create the local variables from the example file:
 
@@ -38,46 +38,46 @@ Create the local variables from the example file:
 cp .config/example.local.tfvars .local.tfvars
 
 # Set is as relative to work from the modules root
-tfvars='.local.tfvars'
+tfvars="../.local.tfvars"
 ```
 
 You might want to change the `app_name` value to avoid conflict with existing resources. Just make sure that `kv-${app_name}` won't exceed 24 characters, as this is the Key Vault limit.
 
 All other variables are optional and have default values, but you may edit to fit your needs.
 
-### 3. Deploy the Resources
+### 3 - Deploy the Resources
 
 Create the Azure Cloud resources:
 
 ```bash
-terraform -chdir='azure' init
-terraform -chdir='azure' apply -var-file=$tfvars -auto-approve
+terraform -chdir="azure" init
+terraform -chdir="azure" apply -var-file=$tfvars -auto-approve
 ```
 
 Apply the Helm module:
 
 ```bash
-terraform -chdir='helm' init
-terraform -chdir='helm' apply -var-file=$tfvars -auto-approve
+terraform -chdir="helm" init
+terraform -chdir="helm" apply -var-file=$tfvars -auto-approve
 ```
 
 Apply the Kubernetes module:
 
 ```bash
-terraform -chdir='kubernetes' init
-terraform -chdir='kubernetes' apply -var-file=$tfvars -auto-approve
+terraform -chdir="kubernetes" init
+terraform -chdir="kubernetes" apply -var-file=$tfvars -auto-approve
 ```
 On your own solutions you might choose to use `yaml` files, but here we are making it everything managed by TF for convenience.
 
-That's it, you can now copy the output `aks_get_credentials_command` variable to test Workload Identity with the `quick-start` container.
+That's it! You can now copy the output `aks_get_credentials_command` variable to test Workload Identity with the `quick-start` container.
 
 
-### 4. Test with Workload
+### 4 - Test with Workload
 
 Connect using `kubectl` and check the response:
 
 ```bash
-az aks get-credentials -g '<resource-group-name>' -n '<aks-name>'
+az aks get-credentials -g "<resource-group-name>" -n "<aks-name>"
 
 kubectl logs quick-start
 ```
@@ -86,7 +86,7 @@ You should see the output: `successfully got secret, secret=Hello!`
 
 ---
 
-### Clean Up
+## Clean Up
 
 Delete the resources to avoid unwanted costs:
 
